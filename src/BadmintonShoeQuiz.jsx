@@ -157,9 +157,8 @@ const ShoppingLinks = ({ shoeName, brand }) => {
   );
 };
 
-// 雷达图组件
-// 雷达图组件 - 支持高亮显示
-const RadarChart = ({ shoes, activeShoe }) => {
+// 雷达图组件 - 支持高亮显示 & 图例按钮选择
+const RadarChart = ({ shoes, activeShoe, onSelectShoe }) => {
   const size = 300;
   const center = size / 2;
   const maxRadius = 120;
@@ -245,7 +244,9 @@ const RadarChart = ({ shoes, activeShoe }) => {
   return (
     <div className="bg-white/5 rounded-2xl p-6 mb-6">
       <h3 className="text-xl font-bold text-white mb-2 text-center">📊 推荐球鞋性能雷达图</h3>
-      <p className="text-center text-gray-400 text-xs mb-4">💡 鼠标悬停/点击下方卡片可高亮对应数据</p>
+      <p className="text-center text-gray-400 text-xs mb-4">
+        💡 点击右侧「图例说明」中的球鞋按钮，可高亮对应的雷达面积，再次点击可取消高亮
+      </p>
       <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
         <svg width={size} height={size} className="flex-shrink-0">
           {renderGrid()}
@@ -313,10 +314,20 @@ const RadarChart = ({ shoes, activeShoe }) => {
                   const isActive = activeShoe === shoe.name;
                   const isDimmed = activeShoe && !isActive;
                   
+                  const handleClick = () => {
+                    if (!onSelectShoe) return;
+                    // 再次点击同一双鞋则取消高亮
+                    onSelectShoe(isActive ? null : shoe.name);
+                  };
+                  
                   return (
-                    <div 
+                    <button
                       key={shoe.name} 
-                      className={`flex items-center gap-2 pl-6 transition-all duration-300 ${isActive ? 'scale-105 font-bold' : ''} ${isDimmed ? 'opacity-30' : ''}`}
+                      type="button"
+                      onClick={handleClick}
+                      className={`flex items-center gap-2 pl-6 py-1 rounded-lg transition-all duration-300 text-left
+                        ${isActive ? 'scale-105 font-bold bg-white/10' : 'hover:bg-white/5'}
+                        ${isDimmed ? 'opacity-30' : ''}`}
                     >
                       <svg width="24" height="12">
                         <line
@@ -326,8 +337,10 @@ const RadarChart = ({ shoes, activeShoe }) => {
                           strokeDasharray={isActive ? 'none' : style.dasharray}
                         />
                       </svg>
-                      <span className={`${isActive ? 'text-white' : 'text-gray-300'} text-xs`}>{shoe.name}</span>
-                    </div>
+                      <span className={`${isActive ? 'text-white' : 'text-gray-300'} text-xs`}>
+                        {shoe.name}
+                      </span>
+                    </button>
                   );
                 })}
               </div>
@@ -831,6 +844,7 @@ export default function BadmintonShoeQuiz() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [showTechModal, setShowTechModal] = useState(null);
   const [showPoster, setShowPoster] = useState(false);
+  const [activeRadarShoe, setActiveRadarShoe] = useState(null); // 雷达图当前高亮的球鞋
   const resultRef = useRef(null);
   const handleSelect = (value) => {
     setSelectedOption(value);
@@ -862,6 +876,7 @@ export default function BadmintonShoeQuiz() {
     setAnswers({});
     setShowResult(false);
     setSelectedOption(null);
+    setActiveRadarShoe(null);
   };
 
   // 结果页面
@@ -907,7 +922,11 @@ export default function BadmintonShoeQuiz() {
           )}
 
           {/* 雷达图 */}
-          <RadarChart shoes={radarShoes} />
+          <RadarChart
+            shoes={radarShoes}
+            activeShoe={activeRadarShoe}
+            onSelectShoe={setActiveRadarShoe}
+          />
 
           {/* YONEX */}
           <div className="bg-gradient-to-r from-red-600/20 to-red-800/20 rounded-2xl p-6 mb-4 border border-red-500/30">
@@ -1140,3 +1159,4 @@ export default function BadmintonShoeQuiz() {
     </div>
   );
 }
+
