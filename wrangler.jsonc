@@ -1,0 +1,7 @@
+{
+    "name": "badminton-shoe-quiz",        // 和 Cloudflare 控制台里的 Worker 名字一致
+    "compatibility_date": "2025-12-18",   // 用日志里提示的这一天
+    "assets": {
+      "directory": "./dist"               // Vite build 之后的静态资源目录
+    }
+  }
